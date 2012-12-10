@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name        = 'eloqua'
+  s.name        = 'eloqua_api'
   s.version     = '0.0.1'
   s.date        = '2012-10-12'
   s.summary     = "Ruby Eloqua API Wrapper"

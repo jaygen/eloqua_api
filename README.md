@@ -11,7 +11,7 @@ Installation
 Add to your Gemfile:
 
 ```ruby
-gem 'eloqua'
+gem 'eloqua_api'
 ```
 
 Example
