@@ -8,5 +8,5 @@ Gem::Specification.new do |s|
   s.email       = 'nader@kapost.com'
   s.files        = Dir['lib/**/*.rb']
   s.require_path = ['lib']
-  s.homepage    =   'http://rubygems.org/gems/eloqua_api'
+  s.homepage    =   'http://github.com/kapost/eloqua_api'
 end
