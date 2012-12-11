@@ -1,5 +1,5 @@
 module Eloqua
-  class BulkClient < Client
+  class BulkClient < Eloqua::Client
     BULK_API_PATH = "/API/Bulk/1.0"
 
     def bulk_path(path)
