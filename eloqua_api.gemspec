@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = "Convenience wrapper for Eloqua REST and Bulk APIs"
   s.authors     = ["Nader Akhnoukh"]
   s.email       = 'nader@kapost.com'
-  s.files       = ["lib/eloqua.rb"]
-  s.homepage    =
-    'http://rubygems.org/gems/eloqua'
+  s.files        = Dir['lib/**/*.rb']
+  s.require_path = ['lib']
+  s.homepage    =   'http://rubygems.org/gems/eloqua_api'
 end
