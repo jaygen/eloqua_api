@@ -1,82 +1,23 @@
+require 'eloqua_api/rest/segment'
+require 'eloqua_api/rest/landing_page'
+require 'eloqua_api/rest/email'
+require 'eloqua_api/rest/campaign'
+require 'eloqua_api/rest/contact'
+require 'eloqua_api/rest/user'
+require 'eloqua_api/rest/microsite'
+
 module Eloqua
-  class RESTClient < Eloqua::Client
-    REST_API_PATH = "/API/REST/1.0"
+  class RESTClient < Client
+    include Segment
+    include LandingPage
+    include Email
+    include Campaign
+    include Contact
+    include User
+    include Microsite
 
-    def rest_path(path)
-      REST_API_PATH + '/' + path
-    end
-
-    # convenience methods
-    
-    # SEGMENTS
-    def create_segment(segment_definition)
-      # debugger
-      post(rest_path("assets/contact/segment"), segment_definition)
-    end
-
-    def get_segment(segment_id)
-      get(rest_path("assets/contact/segment/#{segment_id}"))
-    end
-    
-    # LANDING PAGES
-    def get_landing_page(landing_page_id)
-      get(rest_path("assets/landingPage/#{landing_page_id}"))
-    end
-    
-    def get_landing_pages(options={})
-     options["count"] ||= 10
-     options["depth"] ||= "minimal"
-     options["order_by"] ||= "createdAt+DESC"
-
-     query = "count=#{options["count"]}&depth=#{options["depth"]}&orderBy=#{options["order_by"]}"
-
-     get(rest_path("assets/landingPages?#{query}"))
-   end 
-  
-    # EMAILS
-    def get_email(email_id)
-      get(rest_path("assets/email/#{email_id}"))
-    end
-
-    def get_emails(options={})
-     options["count"] ||= 10
-     options["depth"] ||= "minimal"
-     options["order_by"] ||= "createdAt+DESC"
-
-     query = "count=#{options["count"]}&depth=#{options["depth"]}&orderBy=#{options["order_by"]}"
-
-     get(rest_path("assets/emails?#{query}"))
-   end 
-
-    # CAMPAIGNS
-    def get_campaign(campaign_id)
-      get(rest_path("assets/campaign/#{campaign_id}"))
-    end
-    
-    def get_recent_campaigns(options={})
-      options["count"] ||= 10
-      options["depth"] ||= "minimal"
-      get(rest_path("assets/campaigns/recent?count=#{options["count"]}&depth=#{options["depth"]}"))
-    end
-    
-    def get_campaigns(options={})
-      options["count"] ||= 10
-      options["depth"] ||= "minimal"
-      options["order_by"] ||= "createdAt+DESC"
-      
-      query = "count=#{options["count"]}&depth=#{options["depth"]}&orderBy=#{options["order_by"]}"
-      
-      get(rest_path("assets/campaigns?#{query}"))
-    end
-
-    # CONTACTS
-    def contact_activity(contact_id, options={})
-      options["start_date"] ||= 1.year.ago.to_i
-      options["end_date"] ||= Time.now.to_i
-      options["type"] ||= "webVisit"
-      options["count"] ||= 1000
-
-      get(rest_path("data/activities/contact/#{contact_id}?startDate=#{options["start_date"]}&endDate=#{options["end_date"]}&type=#{options["type"]}&count=#{options["count"]}"))
+    def build_path(*segments)
+      super('/REST/', *segments)
     end
   end
 end

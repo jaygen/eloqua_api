@@ -1,54 +1,107 @@
-require 'net/https'
 require 'json'
+require 'httparty'
 
 module Eloqua
+  class HTTPClient
+    include HTTParty
+
+    class Parser::CustomJSON < HTTParty::Parser
+      def parse
+        JSON.parse(body)
+      rescue JSON::ParserError
+        body
+      end
+    end
+    parser Parser::CustomJSON
+
+    headers 'User-Agent' => 'Kapost Eloqua API Client'
+    format :json
+    #debug_output $stdout
+  end
+
   class Client
-    attr_reader :site, :user
+    BASE_URI = 'https://secure.eloqua.com'
+    BASE_LOGIN_URI = 'https://login.eloqua.com'
+    BASE_VERSION = '1.0'
+    BASE_PATH = '/API/'
 
-    def initialize(site=nil, user=nil, password=nil)
+    attr_reader :site, :username, :url, :options, :version
+
+    def initialize(site, username, password, opts={})
       @site = site
-      @user = user
+      @username = username
       @password = password
-
-      @https = Net::HTTP.new('secure.eloqua.com', 443)
-      @https.use_ssl = true
-      @https.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      @url = URI.parse(opts.delete(:url) || BASE_URI)
+      @url_changed = false
+      @version = opts.delete(:version) || BASE_VERSION
+      @login_fallback = opts.delete(:login_fallback) || false
+      @options = opts
     end
 
-    METHODS = {
-            :get    => ::Net::HTTP::Get,
-            :post   => ::Net::HTTP::Post,
-            :put    => ::Net::HTTP::Put,
-            :delete => ::Net::HTTP::Delete
-          }
-
-    def delete(path)
-      request(:delete, path)
+    def url_changed?
+      @url_changed
     end
 
-    def get(path)
-      request(:get, path)
+    def build_path(*segments)
+      File.join(BASE_PATH, *segments.shift, version, *segments)
+    end
+
+    def login
+      @url_changed = false
+
+      uri = BASE_URI
+
+      result = http(BASE_LOGIN_URI).get('/id')
+      if result.code == 200 and result.parsed_response.is_a? Hash
+        uri = result.parsed_response["urls"]["base"]
+        @url_changed = true
+      end
+
+      @url = URI.parse(uri)
+
+      result
+    end
+
+    def get(path, query={})
+      request(:get, build_path(path), :query => query)
     end
 
     def post(path, body={})
-      request(:post, path, body)
+      request(:post, build_path(path), :body => body)
     end
 
     def put(path, body={})
-      request(:put, path, body)
+      request(:put, build_path(path), :body => body)
     end
 
-    def request(method, path, body={})
-      request = METHODS[method].new(path, {'Content-Type' =>'application/json'})
-      request.basic_auth @site + '\\' + @user, @password
+    def delete(path)
+      request(:delete, build_path(path))
+    end
 
-      case method
-        when :post, :put
-          request.body = body
+    protected
+
+    def request(method, path, params, login_fallback=true)
+      @http ||= http
+
+      result = @http.send(method, path, params)
+      if login_fallback and result.code == 401 and login and url_changed?
+        request(method, path, params, false)
+      else
+        result
       end
+    end
 
-      response = @https.request(request)
-      return response
+    def http(url=nil)
+      site     = @site
+      username = @username
+      password = @password
+      url    ||= @url
+
+      Class.new(HTTPClient) do |klass|
+        klass.base_uri(url.to_s) if url
+        klass.basic_auth("%s\\%s" % [site, username], password)
+      end
     end
   end
 end
+
