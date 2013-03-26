@@ -16,7 +16,6 @@ module Eloqua
 
     headers 'User-Agent' => 'Kapost Eloqua API Client'
     format :json
-    #debug_output $stdout
   end
 
   class Client
@@ -34,7 +33,6 @@ module Eloqua
       @url = URI.parse(opts.delete(:url) || BASE_URI)
       @url_changed = false
       @version = opts.delete(:version) || BASE_VERSION
-      @login_fallback = opts.delete(:login_fallback) || false
       @options = opts
     end
 
