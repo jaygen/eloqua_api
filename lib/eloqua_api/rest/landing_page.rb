@@ -20,8 +20,8 @@ module Eloqua
       get("assets/landingPage/%s" % id)
     end
 
-    def get_landing_page_preview(id)
-      get("assets/landingPage/%s/preview" % id)
+    def get_landing_page_preview(id, options={})
+      get("assets/landingPage/%s/preview" % id, options)
     end
 
     def get_recent_landing_pages(options={})
@@ -43,7 +43,7 @@ module Eloqua
       get("assets/landingPages/template/%s" % id, options)
     end
 
-    def get_landing_pages_templates(options={})
+    def get_landing_page_templates(options={})
       get("assets/templates/landingpage", options)
     end
   end

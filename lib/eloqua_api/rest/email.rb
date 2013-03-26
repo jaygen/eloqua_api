@@ -12,6 +12,10 @@ module Eloqua
       get("assets/email/%s" % id, options)
     end
 
+    def get_email_preview(id, options={})
+      get("assets/email/%s/preview" % id, options)
+    end
+
     def get_recent_emails(options={})
       options[:count] ||= 10
       options[:depth] ||= "minimal"
@@ -32,7 +36,7 @@ module Eloqua
     end
 
     def get_email_templates(options={})
-      get("assets/emails/templates", options)
+      get("assets/templates/email", options)
     end
   end
 end
