@@ -45,6 +45,7 @@ module Eloqua
     end
 
     def login
+      @http = nil
       @url_changed = false
 
       uri = BASE_URI
