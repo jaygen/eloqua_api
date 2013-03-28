@@ -1,5 +1,7 @@
 require 'json'
 require 'httparty'
+require 'uri'
+require 'cgi'
 
 module Eloqua
   class HTTPClient
@@ -19,21 +21,67 @@ module Eloqua
   end
 
   class Client
-    BASE_URI = 'https://secure.eloqua.com'
-    BASE_LOGIN_URI = 'https://login.eloqua.com'
+    SITE = 'eloqua.com'
+#    BASE_URI = "http://127.0.0.1:9393"
+#    BASE_LOGIN_URI = "http://127.0.0.1:9393"
+    BASE_URI = "https://secure.#{SITE}"
+    BASE_LOGIN_URI = "https://login.#{SITE}"
     BASE_VERSION = '1.0'
     BASE_PATH = '/API/'
 
-    attr_reader :site, :username, :url, :options, :version
+    AUTHORIZE_PATH = '/auth/oauth2/authorize'
+    TOKEN_PATH = '/auth/oauth2/token'
 
-    def initialize(site, username, password, opts={})
-      @site = site
-      @username = username
-      @password = password
-      @url = URI.parse(opts.delete(:url) || BASE_URI)
+    attr_reader :opts
+
+    def initialize(opts={})
+      @opts = opts.dup
+      @opts[:url] ||= BASE_URI
+      @opts[:version] ||= BASE_VERSION
       @url_changed = false
-      @version = opts.delete(:version) || BASE_VERSION
-      @options = opts
+    end
+
+    def version
+      @opts[:version]
+    end
+
+    def authorize_url(options={})
+      query = {}
+      query[:response_type] = 'code'
+      query[:client_id]     = @opts[:client_id]
+      query[:redirect_uri]  = escape_uri(options[:redirect_uri] || @opts[:redirect_uri])
+      query[:scope]         = options[:scope] || @opts[:scope] || 'full'
+
+      if (state=(options[:state] || @opts[:state]))
+        query[:state] = state
+      end
+
+      "#{BASE_LOGIN_URI}#{AUTHORIZE_PATH}?#{query.map { |k,v| [k, v].join('=') }.join('&')}"
+    end
+
+    def exchange_token(options={})
+      auth = [@opts[:client_id], @opts[:client_secret]]
+
+      body = {}
+      if options[:code] and @opts[:redirect_uri]
+        body[:grant_type]   = 'authorization_code'
+        body[:code]         = options[:code]
+        body[:redirect_uri] = escape_uri(@opts[:redirect_uri])
+      elsif @opts[:refresh_token]
+        body[:grant_type]   = 'refresh_token'
+        body[:refresh_token] = @opts[:refresh_token]
+      else
+        raise ArgumentError, 'code and redirect_uri or refresh_token is required'
+      end
+
+      result = http(BASE_LOGIN_URI, auth).post(TOKEN_PATH, :body => body)
+      if result.code == 200 and result.parsed_response.is_a? Hash
+        @opts[:access_token] = result.parsed_response['access_token']
+        @opts[:refresh_token] = result.parsed_response['refresh_token']
+        @http = nil
+      end
+
+      result
     end
 
     def url_changed?
@@ -46,17 +94,15 @@ module Eloqua
 
     def login
       @http = nil
-      @url_changed = false
 
       uri = BASE_URI
-
       result = http(BASE_LOGIN_URI).get('/id')
       if result.code == 200 and result.parsed_response.is_a? Hash
         uri = result.parsed_response["urls"]["base"]
-        @url_changed = true
       end
 
-      @url = URI.parse(uri)
+      @url_changed = (uri != @opts[:url])
+      @opts[:url] = uri if @url_changed
 
       result
     end
@@ -79,6 +125,10 @@ module Eloqua
 
     protected
 
+    def escape_uri(url)
+      URI.escape(URI.unescape(url))
+    end
+
     def request(method, path, params, login_fallback=true)
       @http ||= http
 
@@ -90,15 +140,26 @@ module Eloqua
       end
     end
 
-    def http(url=nil)
-      site     = @site
-      username = @username
-      password = @password
-      url    ||= @url
+    def http(url=nil, auth=nil)
+      url ||= opts[:url]
+      auth ||= begin
+        if @opts[:access_token]
+          @opts[:access_token]
+        elsif (site=@opts[:site]) and (username=@opts[:username]) and (password=@opts[:password])
+          ["%s\\%s" % [site, username], password]
+        else
+          nil
+        end
+      end
 
       Class.new(HTTPClient) do |klass|
         klass.base_uri(url.to_s) if url
-        klass.basic_auth("%s\\%s" % [site, username], password)
+
+        if auth.is_a?(String) and auth.size > 0
+          klass.headers("Authorization" => "Bearer %s" % auth)
+        elsif auth.is_a?(Array) and auth.size == 2
+          klass.basic_auth(*auth)
+        end
       end
     end
   end
