@@ -84,6 +84,10 @@ module Eloqua
       result
     end
 
+    def url
+      @opts[:url]
+    end
+
     def url_changed?
       @url_changed
     end
@@ -141,7 +145,7 @@ module Eloqua
     end
 
     def http(url=nil, auth=nil)
-      url ||= opts[:url]
+      url ||= @opts[:url]
       auth ||= begin
         if @opts[:access_token]
           @opts[:access_token]
