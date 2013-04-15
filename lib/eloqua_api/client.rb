@@ -22,8 +22,8 @@ module Eloqua
 
   class Client
     SITE = 'eloqua.com'
-#    BASE_URI = "http://127.0.0.1:9393"
-#    BASE_LOGIN_URI = "http://127.0.0.1:9393"
+   # BASE_URI = "http://127.0.0.1:9393"
+   # BASE_LOGIN_URI = "http://127.0.0.1:9393"
     BASE_URI = "https://secure.#{SITE}"
     BASE_LOGIN_URI = "https://login.#{SITE}"
     BASE_VERSION = '1.0'
@@ -56,7 +56,7 @@ module Eloqua
         query[:state] = state
       end
 
-      "#{BASE_LOGIN_URI}#{AUTHORIZE_PATH}?#{query.map { |k,v| [k, v].join('=') }.join('&')}"
+      "#{BASE_URI}#{AUTHORIZE_PATH}?#{query.map { |k,v| [k, v].join('=') }.join('&')}"
     end
 
     def exchange_token(options={})
