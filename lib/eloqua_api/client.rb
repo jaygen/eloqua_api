@@ -59,7 +59,7 @@ module Eloqua
         query[:state] = state
       end
 
-      "#{BASE_URI}#{AUTHORIZE_PATH}?#{query.map { |k,v| [k, v].join('=') }.join('&')}"
+      "#{BASE_LOGIN_URI}#{AUTHORIZE_PATH}?#{query.map { |k,v| [k, v].join('=') }.join('&')}"
     end
 
     def exchange_token(options={})
