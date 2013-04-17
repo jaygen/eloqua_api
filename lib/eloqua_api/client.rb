@@ -17,7 +17,10 @@ module Eloqua
     parser Parser::CustomJSON
 
     headers 'User-Agent' => 'Kapost Eloqua API Client'
+    headers 'Content-Type' => 'application/json'
+
     format :json
+    #debug_output $stdout
   end
 
   class Client
@@ -116,11 +119,11 @@ module Eloqua
     end
 
     def post(path, body={})
-      request(:post, build_path(path), :body => body)
+      request(:post, build_path(path), :body => body.to_json)
     end
 
     def put(path, body={})
-      request(:put, build_path(path), :body => body)
+      request(:put, build_path(path), :body => body.to_json)
     end
 
     def delete(path)

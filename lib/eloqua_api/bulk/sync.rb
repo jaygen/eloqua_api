@@ -2,7 +2,7 @@ module Eloqua
   module Sync
     def sync(export_uri, options={})
       options[:syncedInstanceUri] ||= export_uri
-      post("sync", options.to_json)
+      post("sync", options)
     end
 
     def sync_status(sync_uri, options={})
