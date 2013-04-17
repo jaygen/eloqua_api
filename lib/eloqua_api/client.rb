@@ -136,7 +136,7 @@ module Eloqua
       URI.escape(URI.unescape(url))
     end
 
-    def request(method, path, params, login_fallback=true)
+    def request(method, path, params={}, login_fallback=true)
       @http ||= http
 
       result = @http.send(method, path, params)
