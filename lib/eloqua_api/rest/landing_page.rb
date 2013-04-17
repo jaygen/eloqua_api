@@ -40,7 +40,7 @@ module Eloqua
     end 
 
     def get_landing_page_template(id, options={})
-      get("assets/landingPages/template/%s" % id, options)
+      get("assets/landingPage/template/%s" % id, options)
     end
 
     def get_landing_page_templates(options={})

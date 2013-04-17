@@ -32,7 +32,7 @@ module Eloqua
     end 
 
     def get_email_template(id, options={})
-      get("assets/emails/template/%s" % id, options={})
+      get("assets/email/template/%s" % id, options={})
     end
 
     def get_email_templates(options={})
