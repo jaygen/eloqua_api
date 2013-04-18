@@ -38,7 +38,7 @@ module Eloqua
     attr_reader :opts
 
     def initialize(opts={})
-      @opts = opts.dup
+      @opts = opts.is_a?(Hash) ? opts.dup : {}
       @opts[:url] ||= BASE_URI
       @opts[:version] ||= BASE_VERSION
       @url_changed = false
