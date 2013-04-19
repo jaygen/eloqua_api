@@ -19,6 +19,14 @@ module Eloqua
     headers 'User-Agent' => 'Kapost Eloqua API Client'
     headers 'Content-Type' => 'application/json'
 
+    query_string_normalizer proc { |query|
+      qs = HashConversions.to_params(query)
+      qs.gsub!(/orderBy=(.*?)%2B(.*?)(&|\?|$)/) do |m|
+        "orderBy=#{$1}+#{$2}#{$3}"
+      end
+      qs
+    }
+
     format :json
     #debug_output $stdout
   end
