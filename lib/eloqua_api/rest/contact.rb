@@ -1,5 +1,21 @@
 module Eloqua
   module Contact
+    def get_contact(contact_id, options={})
+      options[:depth] ||= "minimal"
+  
+      get("data/contact/#{contact_id}", options)
+    end
+    
+    def get_contact_fields(options={})
+      options[:depth] ||= "minimal"
+
+      get("assets/contact/fields", options)
+    end
+    
+    def create_contact(data)
+      post("data/contact", data)
+    end
+    
     def get_contacts(options={})
       options[:count] ||= 10
       options[:depth] ||= "minimal"
