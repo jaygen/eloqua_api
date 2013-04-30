@@ -5,6 +5,7 @@ require 'eloqua_api/rest/campaign'
 require 'eloqua_api/rest/contact'
 require 'eloqua_api/rest/user'
 require 'eloqua_api/rest/microsite'
+require 'eloqua_api/rest/imported_file'
 
 module Eloqua
   class RESTClient < Client
@@ -15,6 +16,7 @@ module Eloqua
     include Contact
     include User
     include Microsite
+    include ImportedFile
 
     def build_path(*segments)
       super('/REST/', *segments)

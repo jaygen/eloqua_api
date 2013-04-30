@@ -12,4 +12,5 @@ Gem::Specification.new do |s|
   s.licenses      = ['MIT']
   s.add_dependency 'json'
   s.add_dependency 'httparty'
+  s.add_dependency 'httmultiparty'
 end

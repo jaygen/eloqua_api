@@ -1,11 +1,11 @@
 require 'json'
-require 'httparty'
+require 'httmultiparty'
 require 'uri'
 require 'cgi'
 
 module Eloqua
   class HTTPClient
-    include HTTParty
+    include HTTMultiParty
 
     class Parser::CustomJSON < HTTParty::Parser
       def parse
@@ -33,8 +33,6 @@ module Eloqua
 
   class Client
     SITE = 'eloqua.com'
-   # BASE_URI = "http://127.0.0.1:9393"
-   # BASE_LOGIN_URI = "http://127.0.0.1:9393"
     BASE_URI = "https://secure.#{SITE}"
     BASE_LOGIN_URI = "https://login.#{SITE}"
     BASE_VERSION = '1.0'
@@ -127,7 +125,8 @@ module Eloqua
     end
 
     def post(path, body={})
-      request(:post, build_path(path), :body => body.to_json)
+      multipart = body.find { |k, v| v.is_a? UploadIO }
+      request(:post, build_path(path), :body => multipart ? body : body.to_json)
     end
 
     def put(path, body={})
