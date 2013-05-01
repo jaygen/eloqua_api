@@ -16,6 +16,10 @@ module Eloqua
       post("data/contact", data)
     end
     
+    def update_contact(contact_id, data)
+      put("data/contact/#{contact_id}", data)
+    end
+    
     def get_contacts(options={})
       options[:count] ||= 10
       options[:depth] ||= "minimal"
