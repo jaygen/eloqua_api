@@ -17,6 +17,7 @@ module Eloqua
     parser Parser::CustomJSON
 
     headers 'User-Agent' => 'Kapost Eloqua API Client'
+    headers 'Accept' => 'application/json'
     headers 'Content-Type' => 'application/json'
 
     query_string_normalizer proc { |query|
@@ -28,7 +29,7 @@ module Eloqua
     }
 
     format :json
-    debug_output $stdout
+    #debug_output $stdout
   end
 
   class Client
@@ -125,8 +126,11 @@ module Eloqua
     end
 
     def post(path, body={})
-      multipart = body.find { |k, v| v.is_a? UploadIO }
-      request(:post, build_path(path), :body => multipart ? body : body.to_json)
+      request(:post, build_path(path), :body => body.to_json)
+    end
+
+    def multipart_post(path, body={})
+      request(:post, build_path(path), :body => body)
     end
 
     def put(path, body={})
