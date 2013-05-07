@@ -32,11 +32,19 @@ module Eloqua
     end 
 
     def get_email_template(id, options={})
-      get("assets/email/template/%s" % id, options={})
+      get("assets/email/template/%s" % id, options)
     end
 
     def get_email_templates(options={})
       get("assets/templates/email", options)
+    end
+    
+    def get_email_deployments(options={})
+      options[:count] ||= 10
+      options[:depth] ||= "complete"
+      options[:orderBy] ||= "createdAt+DESC"
+
+      get("assets/email/deployments")
     end
   end
 end
