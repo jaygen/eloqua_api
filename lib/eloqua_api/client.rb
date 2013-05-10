@@ -29,7 +29,7 @@ module Eloqua
     }
 
     format :json
-    #debug_output $stdout
+    debug_output $stdout
   end
 
   class Client
