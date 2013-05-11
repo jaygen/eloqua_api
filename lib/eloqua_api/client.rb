@@ -41,6 +41,12 @@ module Eloqua
 
     AUTHORIZE_PATH = '/auth/oauth2/authorize'
     TOKEN_PATH = '/auth/oauth2/token'
+    TOKEN_PATH_HEADERS = 
+    {
+      'Accept'          => 'application/json, text/javascript, */*; q=0.01',
+      'Accept-Language' => 'en-US,en;q=0.5',
+      'Content-Type'    => 'application/x-www-form-urlencoded; charset=UTF-8'
+    }.freeze
 
     attr_reader :opts
 
@@ -59,12 +65,13 @@ module Eloqua
       query = {}
       query[:response_type] = 'code'
       query[:client_id]     = @opts[:client_id]
-      query[:redirect_uri]  = escape_uri(options[:redirect_uri] || @opts[:redirect_uri])
       query[:scope]         = options[:scope] || @opts[:scope] || 'full'
 
       if (state=(options[:state] || @opts[:state]))
         query[:state] = state
       end
+
+      query[:redirect_uri]  = escape_uri(options[:redirect_uri] || @opts[:redirect_uri])
 
       "#{BASE_LOGIN_URI}#{AUTHORIZE_PATH}?#{query.map { |k,v| [k, v].join('=') }.join('&')}"
     end
@@ -77,14 +84,15 @@ module Eloqua
         body[:grant_type]   = 'authorization_code'
         body[:code]         = options[:code]
         body[:redirect_uri] = escape_uri(@opts[:redirect_uri])
-      elsif @opts[:refresh_token]
+      elsif @opts[:refresh_token] and @opts[:redirect_uri]
         body[:grant_type]   = 'refresh_token'
         body[:refresh_token] = @opts[:refresh_token]
+        body[:redirect_uri] = escape_uri(@opts[:redirect_uri])
       else
-        raise ArgumentError, 'code and redirect_uri or refresh_token is required'
+        raise ArgumentError, 'code and redirect_uri or refresh_token and redirect_uri is required'
       end
 
-      result = http(BASE_LOGIN_URI, auth).post(TOKEN_PATH, :body => body)
+      result = http(BASE_LOGIN_URI, auth).post(TOKEN_PATH, :body => body, :headers => TOKEN_PATH_HEADERS)
       if result.code == 200 and result.parsed_response.is_a? Hash
         @opts[:access_token] = result.parsed_response['access_token']
         @opts[:refresh_token] = result.parsed_response['refresh_token']
