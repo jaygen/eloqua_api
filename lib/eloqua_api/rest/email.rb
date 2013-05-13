@@ -40,11 +40,11 @@ module Eloqua
     end
     
     def get_email_deployments(options={})
-      options[:count] ||= 10
+      options[:count] ||= 50
       options[:depth] ||= "complete"
       options[:orderBy] ||= "createdAt+DESC"
 
-      get("assets/email/deployments")
+      get("assets/email/deployments", options)
     end
   end
 end
