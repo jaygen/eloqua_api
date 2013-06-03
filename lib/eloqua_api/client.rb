@@ -9,7 +9,7 @@ module Eloqua
 
     class Parser::CustomJSON < HTTParty::Parser
       def parse
-        JSON.parse(body)
+        JSON.parse(body) if body
       rescue JSON::ParserError
         body
       end
