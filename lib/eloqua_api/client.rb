@@ -50,11 +50,15 @@ module Eloqua
 
     attr_reader :opts
 
+    attr_accessor :on_authorize
+    attr_accessor :on_refresh_token
+
     def initialize(opts={})
       @opts = opts.is_a?(Hash) ? opts.dup : {}
       @opts[:url] ||= BASE_URI
       @opts[:version] ||= BASE_VERSION
       @url_changed = false
+      @token_refreshed = false
     end
 
     def version
@@ -84,7 +88,7 @@ module Eloqua
         body[:grant_type]   = 'authorization_code'
         body[:code]         = options[:code]
         body[:redirect_uri] = escape_uri(@opts[:redirect_uri])
-      elsif @opts[:refresh_token] and @opts[:redirect_uri]
+      elsif refresh_token?
         body[:grant_type]   = 'refresh_token'
         body[:refresh_token] = @opts[:refresh_token]
         body[:redirect_uri] = escape_uri(@opts[:redirect_uri])
@@ -93,13 +97,32 @@ module Eloqua
       end
 
       result = http(BASE_LOGIN_URI, auth).post(TOKEN_PATH, :body => body, :headers => TOKEN_PATH_HEADERS)
-      if result.code == 200 and result.parsed_response.is_a? Hash
-        @opts[:access_token] = result.parsed_response['access_token']
-        @opts[:refresh_token] = result.parsed_response['refresh_token']
-        @http = nil
+      return result unless result.code == 200 and result.parsed_response.is_a? Hash
+
+      response = result.parsed_response
+      return result unless response['access_token'] and response['refresh_token']
+
+      @opts[:access_token] = response['access_token']
+      @opts[:refresh_token] = response['refresh_token']
+        
+      @http = nil
+      @token_refreshed = true
+
+      if refresh_token? and on_refresh_token?
+        on_refresh_token.call(response)
+      elsif options[:code] and @opts[:redirect_uri] and on_authorize?
+        on_authorize.call(response)
       end
 
       result
+    end
+
+    def on_refresh_token?
+      on_refresh_token.is_a? Proc
+    end
+
+    def on_authorize?
+      on_authorize.is_a? Proc
     end
 
     def url
@@ -108,6 +131,10 @@ module Eloqua
 
     def url_changed?
       @url_changed
+    end
+
+    def token_refreshed?
+      @token_refreshed
     end
 
     def build_path(*segments)
@@ -151,6 +178,11 @@ module Eloqua
 
     protected
 
+    def refresh_token?
+      @opts[:refresh_token] and 
+      @opts[:redirect_uri]
+    end
+
     def escape_uri(url)
       URI.escape(URI.unescape(url))
     end
@@ -159,8 +191,14 @@ module Eloqua
       @http ||= http
 
       result = @http.send(method, path, params)
-      if login_fallback and result.code == 401 and login and url_changed?
-        request(method, path, params, false)
+      if result.code == 401 and login_fallback
+        exchange_token if refresh_token?
+        
+        if login
+          request(method, path, params, false)
+        else
+          result
+        end
       else
         result
       end
