@@ -52,6 +52,7 @@ module Eloqua
 
     attr_accessor :on_authorize
     attr_accessor :on_refresh_token
+    attr_accessor :on_url_changed
 
     def initialize(opts={})
       @opts = opts.is_a?(Hash) ? opts.dup : {}
@@ -117,12 +118,16 @@ module Eloqua
       result
     end
 
+    def on_authorize?
+      on_authorize.is_a? Proc
+    end
+
     def on_refresh_token?
       on_refresh_token.is_a? Proc
     end
 
-    def on_authorize?
-      on_authorize.is_a? Proc
+    def on_url_changed?
+      on_url_changed.is_a? Proc
     end
 
     def url
@@ -151,7 +156,10 @@ module Eloqua
       end
 
       @url_changed = (uri != @opts[:url])
-      @opts[:url] = uri if @url_changed
+      if @url_changed
+        @opts[:url] = uri
+        on_url_changed.call(uri) if on_url_changed?
+      end
 
       result
     end
