@@ -223,9 +223,11 @@ module Eloqua
           nil
         end
       end
+      timeout ||= @opts[:timeout]
 
       Class.new(HTTPClient) do |klass|
         klass.base_uri(url.to_s) if url
+        klass.default_timeout(timeout) if timeout
 
         if auth.is_a?(String) and auth.size > 0
           klass.headers("Authorization" => "Bearer %s" % auth)
