@@ -16,6 +16,10 @@ module Eloqua
       get("assets/email/%s/preview" % id, options)
     end
 
+    def create_deployment(options={})
+      post("assets/email/deployment", options)
+    end
+
     def get_recent_emails(options={})
       options[:count] ||= 10
       options[:depth] ||= "minimal"

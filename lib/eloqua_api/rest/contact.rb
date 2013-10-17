@@ -1,5 +1,13 @@
 module Eloqua
   module Contact
+    def find_contact_by_email(email, options={})
+      options[:depth] ||= "minimal"
+      options[:count] ||= 1
+      options[:search] = email
+      
+      get("data/contacts", options)
+    end
+
     def get_contact(contact_id, options={})
       options[:depth] ||= "minimal"
   
