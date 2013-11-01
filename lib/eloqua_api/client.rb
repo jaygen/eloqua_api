@@ -120,15 +120,15 @@ module Eloqua
     end
 
     def on_authorize?
-      on_authorize.is_a? Proc
+      on_authorize.respond_to? :call
     end
 
     def on_refresh_token?
-      on_refresh_token.is_a? Proc
+      on_refresh_token.respond_to? :call
     end
 
     def on_url_changed?
-      on_url_changed.is_a? Proc
+      on_url_changed.respond_to? :call
     end
 
     def url
