@@ -9,7 +9,7 @@ module Eloqua
     end
 
     def validate_landing_page(id, options={})
-      get("assets/landingPage/%s/active/validatonErrors" % id)
+      get("assets/landingPage/%s/active/validationErrors" % id)
     end
 
     def activate_landing_page(id, options={})
