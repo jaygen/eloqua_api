@@ -10,5 +10,9 @@ module Eloqua
 
       get("%s/data" % export_uri, options)
     end
+
+    def define_activity_export(export)
+      post("activities/exports", export)
+    end
   end
 end
