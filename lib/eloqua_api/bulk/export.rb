@@ -25,5 +25,13 @@ module Eloqua
       get("%s/data" % export_uri, options)
     end
     alias :retrieve_activities_export :retrieve_activity_export
+
+    def delete_export_definition(export_uri, options={})
+      delete(export_uri)
+    end
+
+    def delete_export(export_uri, options={})
+      delete("%s/data" % export_uri)
+    end
   end
 end

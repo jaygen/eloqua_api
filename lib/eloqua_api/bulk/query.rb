@@ -41,6 +41,15 @@ module Eloqua
       @sync = false
     end
 
+    def delete
+      raise Error, 'Execute must be called before calling delete.' if @uri.nil?
+      
+      client.delete_export(@uri)
+      client.delete_export_definition(@uri)
+
+      self
+    end
+
     def execute
       raise Error, 'Execute cannot be called more than once.' unless @uri.nil?
       raise Error, 'A valid resource must be defined before calling execute.' unless @resource and @client.respond_to?(define_export_method) and @client.respond_to?(retrieve_export_method)
@@ -118,12 +127,12 @@ module Eloqua
           else
             break
           end
-
-          nil
         else
           raise Error.new("Could not call each because: #{response.parsed_response.to_s}.", response.code)
         end
       end
+
+      self
     end
 
     def to_h
