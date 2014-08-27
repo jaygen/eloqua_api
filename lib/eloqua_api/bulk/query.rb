@@ -120,7 +120,7 @@ module Eloqua
 
           response['items'].each do |item|
             yield item
-          end if response['items'].is_?(Array)
+          end if response['items'].is_a?(Array)
 
           if response['hasMore']
             offset += @limit
