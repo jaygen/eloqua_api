@@ -44,8 +44,8 @@ module Eloqua
     def delete
       raise Error, 'Execute must be called before calling delete.' if @uri.nil?
       
-      client.delete_export(@uri)
-      client.delete_export_definition(@uri)
+      @client.delete_export(@uri)
+      @client.delete_export_definition(@uri)
 
       self
     end
