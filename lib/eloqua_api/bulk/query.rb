@@ -21,10 +21,10 @@ module Eloqua
 
   class Query
     class Error < StandardError
-      attr_reader :code
+      attr_reader :response
 
-      def initialize(message, code=500)
-        @code = code
+      def initialize(message, response=nil)
+        @response = response
         super(message)
       end
     end
@@ -58,7 +58,7 @@ module Eloqua
       if response.code == 201 and response.parsed_response['uri']
         @uri = response.parsed_response['uri']
       else
-        raise Error.new("Could not execute query because: #{response.parsed_response.to_s}.", response.code)
+        raise Error.new("Could not execute query.", response)
       end
 
       self
@@ -75,7 +75,7 @@ module Eloqua
         if response.code == 201 and response.parsed_response['status'] == 'pending'
           @sync_uri = response.parsed_response['uri']
         else
-          raise Error.new("Could not sync because: #{response.parsed_response.to_s}.", response.code)
+          raise Error.new("Could not sync.", response)
         end
       end
 
@@ -92,7 +92,7 @@ module Eloqua
         sleep 1
       end
 
-      raise Error.new("Could not sync in #{secs} seconds, because: #{response.parsed_response.to_s}.", response.code) unless response.nil?
+      raise Error.new("Could not sync in #{secs} seconds.", response)
 
       self
     end
@@ -104,7 +104,7 @@ module Eloqua
       if response.code == 200 and response.parsed_response['totalResults']
         response.parsed_response['totalResults'].to_i
       else
-        raise Error.new("Could not call count because: #{response.parsed_response.to_s}.", response.code)
+        raise Error.new("Failed to get count.", response)
       end
     end
 
@@ -128,7 +128,7 @@ module Eloqua
             break
           end
         else
-          raise Error.new("Could not call each because: #{response.parsed_response.to_s}.", response.code)
+          raise Error.new("Failed to get rows for each.", response)
         end
       end
 
