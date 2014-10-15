@@ -28,7 +28,7 @@ module Eloqua
       qs
     }
 
-    ssl_version :SSLv3
+    # ssl_version :SSLv3
     format :json
     # debug_output $stdout
   end
