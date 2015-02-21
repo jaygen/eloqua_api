@@ -1,16 +1,28 @@
-Gem::Specification.new do |s|
-  s.name          = 'eloqua_api'
-  s.version       = '0.0.10'
-  s.date          = '2012-10-12'
-  s.summary       = "Ruby Eloqua API Wrapper"
-  s.description   = "Convenience wrapper for Eloqua REST and Bulk APIs"
-  s.authors       = ["Nader Akhnoukh"]
-  s.email         = 'nader@kapost.com'
-  s.files         = Dir['lib/**/*.rb']
-  s.require_paths = ['lib']
-  s.homepage      = 'http://github.com/kapost/eloqua_api'
-  s.licenses      = ['MIT']
-  s.add_dependency 'json'
-  s.add_dependency 'httparty'
-  s.add_dependency 'httmultiparty'
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'eloqua_api/version'
+
+Gem::Specification.new do |spec|
+  spec.name          = "eloqua_api"
+  spec.version       = EloquaApi::VERSION
+  spec.authors       = ["Nader Akhnoukh"]
+  spec.email         = ["nader@kapost.com"]
+  spec.summary       = %q{Ruby Eloqua API Wrapper}
+  spec.description   = %q{Convenience wrapper for Eloqua REST and Bulk APIs}
+  spec.homepage      = "https://github.com/kapost/eloqua_api"
+  spec.license       = "MIT"
+
+  spec.files         = `git ls-files -z`.split("\x0")
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.require_paths = ["lib"]
+
+  spec.add_dependency 'json'
+  spec.add_dependency 'httparty'
+  spec.add_dependency 'httmultiparty'
+
+  spec.add_development_dependency "bundler", "~> 1.7"
+  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rspec"
 end

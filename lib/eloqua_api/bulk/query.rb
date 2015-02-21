@@ -13,9 +13,9 @@ module Eloqua
   #        wait(30).each do |row|
   #           puts row
   #        end
-  # 
-  # If anything goes wrong (at any stage of the chain) a Query::Error exception will be thrown 
-  # with a human readable error message, accompanied by the full HTTP request response and code 
+  #
+  # If anything goes wrong (at any stage of the chain) a Query::Error exception will be thrown
+  # with a human readable error message, accompanied by the full HTTP request response and code
   # when appropriate.
   #
 
@@ -25,6 +25,7 @@ module Eloqua
 
       def initialize(message, response=nil)
         @response = response
+        message << "\n#{response.parsed_response}" if response
         super(message)
       end
     end
@@ -43,7 +44,7 @@ module Eloqua
 
     def delete
       raise Error, 'Execute must be called before calling delete.' if @uri.nil?
-      
+
       @client.delete_export(@uri)
       @client.delete_export_definition(@uri)
 
@@ -178,7 +179,7 @@ module Eloqua
 
     def where(*conditions)
       filter = []
-      
+
       conditions.each do |condition|
         l, op, r = expression(condition)
         filter << "'{{#{l}}}'#{op.upcase}'#{r}'" if l
