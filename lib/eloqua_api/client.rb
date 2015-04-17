@@ -2,7 +2,6 @@ require 'json'
 require 'httmultiparty'
 require 'uri'
 require 'cgi'
-require 'erb'
 
 module Eloqua
   class HTTPClient
@@ -194,7 +193,7 @@ module Eloqua
     end
 
     def escape_uri(url)
-      ERB::Util.url_encode(URI.unescape(url))
+      URI.escape(URI.unescape(url))
     end
 
     def request(method, path, params={}, login_fallback=true)
